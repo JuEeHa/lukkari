@@ -64,4 +64,5 @@ def between(start, end):
 	end_year, end_month, end_day = end
 	start_obj = datetime.date(start_year, start_month, start_day)
 	end_obj = datetime.date(end_year, end_month, end_day)
+	assert(end_obj - start_obj >= datetime.timedelta(0))
 	return Daterange(start_obj, end_obj - start_obj + datetime.timedelta(1))
