@@ -26,7 +26,7 @@ def compile(parsed):
 
 	elif function == 'week':
 		if len(parameters) > 1:
-			return (Conjunctions.any, *[compile(('week', week)) for week in parameters])
+			return (Conjunctions.any,) + tuple([compile(('week', week)) for week in parameters])
 		else:
 			assert(len(parameters) == 1)
 			week_data, = parameters
@@ -37,7 +37,7 @@ def compile(parsed):
 
 	elif function == 'weekday':
 		if len(parameters) > 1:
-			return (Conjunctions.any, *[compile(('weekday', weekday)) for weekday in parameters])
+			return (Conjunctions.any,) + tuple([compile(('weekday', weekday)) for weekday in parameters])
 		else:
 			assert(len(parameters) == 1)
 			weekday, = parameters
@@ -45,13 +45,13 @@ def compile(parsed):
 		return (Filters.is_weekday, weekday)
 
 	elif function == 'and':
-		return (Conjunctions.all, *[compile(parameter) for parameter in parameters])
+		return (Conjunctions.all,) + tuple([compile(parameter) for parameter in parameters])
 
 	elif function == 'or':
-		return (Conjunctions.any, *[compile(parameter) for parameter in parameters])
+		return (Conjunctions.any,) + tuple([compile(parameter) for parameter in parameters])
 
 	elif function == 'not':
-		return (Conjunctions.none, *[compile(parameter) for parameter in parameters])
+		return (Conjunctions.none,) + tuple([compile(parameter) for parameter in parameters])
 
 	elif function == 'if':
 		assert(len(parameters) == 2)
