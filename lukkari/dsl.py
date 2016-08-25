@@ -7,7 +7,7 @@ class Filters(enum.Enum):
 class Conjunctions(enum.Enum):
 	all, any, none, implies = range(4)
 
-def compile(parsed):
+def to_ir(parsed):
 	assert(len(parsed) >= 1)
 	function, *parameters = parsed
 
@@ -26,7 +26,7 @@ def compile(parsed):
 
 	elif function == 'week':
 		if len(parameters) > 1:
-			return (Conjunctions.any,) + tuple([compile(('week', week)) for week in parameters])
+			return (Conjunctions.any,) + tuple([to_ir(('week', week)) for week in parameters])
 		else:
 			assert(len(parameters) == 1)
 			week_data, = parameters
@@ -37,7 +37,7 @@ def compile(parsed):
 
 	elif function == 'weekday':
 		if len(parameters) > 1:
-			return (Conjunctions.any,) + tuple([compile(('weekday', weekday)) for weekday in parameters])
+			return (Conjunctions.any,) + tuple([to_ir(('weekday', weekday)) for weekday in parameters])
 		else:
 			assert(len(parameters) == 1)
 			weekday, = parameters
@@ -45,50 +45,51 @@ def compile(parsed):
 		return (Filters.is_weekday, weekday)
 
 	elif function == 'and':
-		return (Conjunctions.all,) + tuple([compile(parameter) for parameter in parameters])
+		return (Conjunctions.all,) + tuple([to_ir(parameter) for parameter in parameters])
 
 	elif function == 'or':
-		return (Conjunctions.any,) + tuple([compile(parameter) for parameter in parameters])
+		return (Conjunctions.any,) + tuple([to_ir(parameter) for parameter in parameters])
 
 	elif function == 'not':
-		return (Conjunctions.none,) + tuple([compile(parameter) for parameter in parameters])
+		return (Conjunctions.none,) + tuple([to_ir(parameter) for parameter in parameters])
 
 	elif function == 'if':
 		assert(len(parameters) == 2)
 		condition, then = parameters
-		return (Conjunctions.implies, compile(condition), compile(then))
+		return (Conjunctions.implies, to_ir(condition), to_ir(then))
 
-def check_day_match(day, date_filter):
+def to_lambda(date_filter):
 	assert(len(date_filter) >= 1)
 	function, *parameters = date_filter
-
 	assert(function in Filters or function in Conjunctions)
-	if function == Conjunctions.implies:
-		assert(len(parameters) == 2)
-	elif function in [Filters.in_date_range, Filters.is_weekday]:
-		assert(len(parameters) == 1)
-	else:
-		assert(function in [Conjunctions.all, Conjunctions.any, Conjunctions.none])
 
 	if function == Conjunctions.all:
-		return all(map(lambda parameter: check_day_match(day, parameter), parameters))
+		compiled = [to_lambda(parameter) for parameter in parameters]
+		return lambda day: all(map(lambda f: f(day), compiled))
 
 	elif function == Conjunctions.any:
-		return any(map(lambda parameter: check_day_match(day, parameter), parameters))
-
+		compiled = [to_lambda(parameter) for parameter in parameters]
+		return lambda day: any(map(lambda f: f(day), compiled))
+	
 	elif function == Conjunctions.implies:
-		left, right = parameters
-		left_truth = check_day_match(day, left)
-		right_truth = check_day_match(day, right)
-		return left_truth and right_truth or not left_truth
-
+		assert(len(parameters) == 2)
+		left, right = to_lambda(parameters[0], parameters[1])
+		return lambda day: right(day) if left(day) else True
+	
 	elif function == Conjunctions.none:
-		return not any(map(lambda parameter: check_day_match(day, parameter), parameters))
-
+		compiled = [to_lambda(parameter) for parameter in parameters]
+		return lambda day: not any(map(lambda f: f(day), compiled))
+	
 	elif function == Filters.in_date_range:
+		assert(len(parameters) == 1)
 		date_range, = parameters
-		return day in date_range
-
+		return lambda day: day in date_range
+	
 	elif function == Filters.is_weekday:
+		assert(len(parameters) == 1)
 		weekday, = parameters
-		return day.isoweekday() == weekday
+		return lambda day: day.isoweekday() == weekday
+
+def compile(parsed):
+	ir = to_ir(parsed)
+	return to_lambda(ir)

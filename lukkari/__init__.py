@@ -1,7 +1,7 @@
 import datetime
 import sys
 import os.path
-from . import check_date
+from . import dsl
 from . import daterange
 from . import generate_timetable
 from . import parse_coursefile
@@ -37,7 +37,7 @@ def main():
 
 	courses = []
 	for name, info, parsed_filter in courses_parsed:
-		date_filter = check_date.compile(parsed_filter)
+		date_filter = dsl.compile(parsed_filter)
 		courses.append((name, info, date_filter))
 	
 	timetable = generate_timetable.generate_timetable(dates, courses)

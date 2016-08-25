@@ -1,5 +1,4 @@
 import datetime
-from . import check_date
 
 def generate_timetable(day_range, courses):
 	start_date, end_date = day_range.range()
@@ -7,7 +6,7 @@ def generate_timetable(day_range, courses):
 	appointments = []
 	while True:
 		for name, info, date_filter in courses:
-			if check_date.check_day_match(date, date_filter):
+			if date_filter(date):
 				appointments.append((date, name, info))
 
 		if date == end_date:
