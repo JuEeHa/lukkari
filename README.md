@@ -30,9 +30,9 @@ Dates are given as year-month-day, weeks as year-week. Weekdays use the three-le
 
 While `date` checks that the date is in a given range (both ends inclusive), `week` and `weekday` check if the date is in a given week or given weekday. Thus, `(weekday mon wed)` only checks if the weekday is monday or wednesday, not if it's tuesday.
 
-	(and [exp1 expr2 expr3 …])
-	(or [exp1 expr2 expr3 …])
-	(not [exp1 expr2 expr3 …])
+	(and [expr1 expr2 expr3 …])
+	(or [expr1 expr2 expr3 …])
+	(not [expr1 expr2 expr3 …])
 	(if condition expr)
 
 `and`, `or`, and `not` all take a variable amount of parameters. `and` checks that all are true, `or` that at least one is true, and `not` that none are true. All of these can be run with zero parameters, in which case `and` and `not` return true and `or` returns false.
