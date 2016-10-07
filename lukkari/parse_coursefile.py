@@ -1,3 +1,5 @@
+from . import timerange
+
 def strip_comments(text):
 	lines = []
 	for line in text.split('\n'):
@@ -7,6 +9,13 @@ def strip_comments(text):
 		else:
 			lines.append(line)
 	return '\n'.join(lines)
+
+def parse_timerange(text):
+	ends = [i.split(':') for i in text.split('-')]
+	assert(len(ends) == 2)
+	start, end = ((int(i[0]), 0) if len(i) == 1 else tuple(map(int, i)) for i in ends)
+	assert(len(start) == 2 and len(end) == 2)
+	return timerange.between(start, end)
 
 def parse_filter(text):
 	weekdays = {'mon': 1, 'tue': 2, 'wed': 3, 'thu': 4, 'fri': 5, 'sat': 6, 'sun': 7}
@@ -117,6 +126,9 @@ def parse(text):
 		name = read_field()
 		match(';')
 
+		time_range = parse_timerange(read_field())
+		match(';')
+
 		info = read_field()
 		match(';')
 
@@ -124,7 +136,7 @@ def parse(text):
 		if not eof():
 			match('\n')
 
-		courses.append((name, info, date_filter))
+		courses.append((name, time_range, info, date_filter))
 
 	assert(eof())
 

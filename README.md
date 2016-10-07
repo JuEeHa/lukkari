@@ -14,9 +14,13 @@ File format
 -----------
 Basic record format is
 
-	name;free-form info;filter
+	name;time range;free-form info;filter
 
 Comments (`#`) are supported and `;` can be excaped with `\` as usual
+
+Time range format
+-----------------
+Time ranges are `start-end`, where start and end may be either HH:MM or just the hour (then it's assumed the minutes field is 0)
 
 Filter format
 -------------

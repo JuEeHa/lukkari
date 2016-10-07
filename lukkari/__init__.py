@@ -36,26 +36,26 @@ def main():
 		courses_parsed = parse_coursefile.parse(f.read())
 
 	courses = []
-	for name, info, parsed_filter in courses_parsed:
+	for name, time_range, info, parsed_filter in courses_parsed:
 		date_filter = dsl.compile(parsed_filter)
-		courses.append((name, info, date_filter))
+		courses.append((name, time_range, info, date_filter))
 	
 	timetable = generate_timetable.generate_timetable(dates, courses)
 
 	timetable_by_date = []
 	current_date = None
 	current_date_entries = []
-	for date, name, info in timetable:
+	for date, time_range, name, info in timetable:
 		if current_date is None:
 			current_date = date
 
 		if date == current_date:
-			current_date_entries.append((name, info))
+			current_date_entries.append((time_range, name, info))
 		else:
 			timetable_by_date.append((current_date, current_date_entries))
 			current_date = date
 			current_date_entries = []
-			current_date_entries.append((name, info))
+			current_date_entries.append((time_range, name, info))
 	
 	if current_date is not None and current_date_entries != []:
 		timetable_by_date.append((current_date, current_date_entries))
@@ -64,6 +64,12 @@ def main():
 	print()
 
 	for date, entries in timetable_by_date:
+		entries.sort(key = lambda x: x[0].range()[0])
+		previous_time_range = None
 		print(date)
-		for name, info in entries:
-			print('\t%s: %s' % (name, info))
+		for time_range, name, info in entries:
+			print('\t%s %s: %s' % (time_range, name, info))
+			if previous_time_range is not None:
+				if time_range.overlaps(previous_time_range):
+					print('\t\tOverlap')
+			previous_time_range = time_range

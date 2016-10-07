@@ -5,9 +5,9 @@ def generate_timetable(day_range, courses):
 	date = start_date
 	appointments = []
 	while True:
-		for name, info, date_filter in courses:
+		for name, time_range, info, date_filter in courses:
 			if date_filter(date):
-				appointments.append((date, name, info))
+				appointments.append((date, time_range, name, info))
 
 		if date == end_date:
 			break
