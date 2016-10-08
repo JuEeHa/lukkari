@@ -72,4 +72,11 @@ def main():
 			if previous_time_range is not None:
 				if time_range.overlaps(previous_time_range):
 					print('\t\tOverlap')
-			previous_time_range = time_range
+					# If the current's ending time is before the previous's, don't change previous_time_range in case it overlaps with several
+					# If current's ending time after, it's safe to change
+					if time_range.range()[1] >= previous_time_range.range()[1]:
+						previous_time_range = time_range
+				else:
+					previous_time_range = time_range
+			else:
+				previous_time_range = time_range
