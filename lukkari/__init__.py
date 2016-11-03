@@ -19,16 +19,16 @@ def main():
 		dates = daterange.week(year, week)
 		filename = sys.argv[1]
 	elif len(sys.argv) == 3:
-		date = parse_date(sys.argv[1])
+		filename = sys.argv[1]
+		date = parse_date(sys.argv[2])
 		dates = daterange.between(date, date)
-		filename = sys.argv[2]
 	elif len(sys.argv) == 4:
-		start = parse_date(sys.argv[1])
-		end = parse_date(sys.argv[2])
+		filename = sys.argv[1]
+		start = parse_date(sys.argv[2])
+		end = parse_date(sys.argv[3])
 		dates = daterange.between(start, end)
-		filename = sys.argv[3]
 	else:
-		print('%s [start [end]] file' % (os.path.basename(sys.argv[0])))
+		print('%s file [start [end]]' % (os.path.basename(sys.argv[0])))
 		print('start and end are in yyyy-mm-dd format')
 		sys.exit(1)
 
