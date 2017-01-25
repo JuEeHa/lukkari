@@ -26,7 +26,7 @@ def to_ir(parsed):
 
 	elif function == 'week':
 		if len(parameters) > 1:
-			return (Conjunctions.any,) + tuple([to_ir(('week', week)) for week in parameters])
+			return (Conjunctions.any,) + tuple(to_ir(('week', week)) for week in parameters)
 		else:
 			assert(len(parameters) == 1)
 			week_data, = parameters
@@ -37,7 +37,7 @@ def to_ir(parsed):
 
 	elif function == 'weekday':
 		if len(parameters) > 1:
-			return (Conjunctions.any,) + tuple([to_ir(('weekday', weekday)) for weekday in parameters])
+			return (Conjunctions.any,) + tuple(to_ir(('weekday', weekday)) for weekday in parameters)
 		else:
 			assert(len(parameters) == 1)
 			weekday, = parameters
@@ -45,13 +45,13 @@ def to_ir(parsed):
 		return (Filters.is_weekday, weekday)
 
 	elif function == 'and':
-		return (Conjunctions.all,) + tuple([to_ir(parameter) for parameter in parameters])
+		return (Conjunctions.all,) + tuple(to_ir(parameter) for parameter in parameters)
 
 	elif function == 'or':
-		return (Conjunctions.any,) + tuple([to_ir(parameter) for parameter in parameters])
+		return (Conjunctions.any,) + tuple(to_ir(parameter) for parameter in parameters)
 
 	elif function == 'not':
-		return (Conjunctions.none,) + tuple([to_ir(parameter) for parameter in parameters])
+		return (Conjunctions.none,) + tuple(to_ir(parameter) for parameter in parameters)
 
 	elif function == 'if':
 		assert(len(parameters) == 2)
