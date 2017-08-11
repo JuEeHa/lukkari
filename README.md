@@ -6,7 +6,7 @@ Requires `zip` program to be installed
 
 Usage
 -----
-	lukkari.py [start [end]] file
+	lukkari.py file [start [end]]
 
 Displays the timetable between start and end dates (or for current week / next week if weekend). Dates are given in format year-month-day.
 
