@@ -122,7 +122,11 @@ def parse(text):
 	length = len(text)
 
 	courses = []
-	while not eof():
+	while True:
+		skip_whitespace()
+		if eof():
+			break
+
 		name = read_field()
 		match(';')
 
