@@ -14,9 +14,9 @@ def parse_date(text):
 def main():
 	args = sys.argv[1:]
 
-	if len(args) > 1 and args[0] == '--overlaps':
+	if len(args) > 2 and args[1] == '--overlaps':
 		only_overlaps = True
-		args = args[1:]
+		args = args[:1] + args[2:]
 	else:
 		only_overlaps = False
 
