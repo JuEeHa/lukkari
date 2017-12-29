@@ -12,24 +12,32 @@ def parse_date(text):
 	return tuple(map(int, split))
 
 def main():
-	if len(sys.argv) == 2:
+	args = sys.argv[1:]
+
+	if len(args) > 1 and args[0] == '--overlaps':
+		only_overlaps = True
+		args = args[1:]
+	else:
+		only_overlaps = False
+
+	if len(args) == 1:
 		year, week, day = datetime.date.today().isocalendar()
 		if day >= 6: # on weekend, show next week
 			year, week, day = (datetime.date.today() + datetime.timedelta(2)).isocalendar()
 		dates = daterange.week(year, week)
-		filename = sys.argv[1]
-	elif len(sys.argv) == 3:
-		filename = sys.argv[1]
-		date = parse_date(sys.argv[2])
+		filename = args[0]
+	elif len(args) == 2:
+		filename = args[0]
+		date = parse_date(args[1])
 		dates = daterange.between(date, date)
-	elif len(sys.argv) == 4:
-		filename = sys.argv[1]
-		start = parse_date(sys.argv[2])
-		end = parse_date(sys.argv[3])
+	elif len(args) == 3:
+		filename = args[0]
+		start = parse_date(args[1])
+		end = parse_date(args[2])
 		dates = daterange.between(start, end)
 	else:
-		print('%s file [start [end]]' % (os.path.basename(sys.argv[0])))
-		print('start and end are in yyyy-mm-dd format')
+		print('%s [--overlaps] file [start [end]]' % (os.path.basename(sys.argv[0])), file = sys.stderr)
+		print('start and end are in yyyy-mm-dd format', file = sys.stderr)
 		sys.exit(1)
 
 	with open(filename, 'r') as f:
@@ -66,17 +74,26 @@ def main():
 	for date, entries in timetable_by_date:
 		entries.sort(key = lambda x: x[0].range()[0])
 		previous_time_range = None
-		print(date)
+		previous_name = None
+		if not only_overlaps:
+			print(date)
 		for time_range, name, info in entries:
-			print('\t%s %s: %s' % (time_range, name, info))
+			if not only_overlaps:
+				print('\t%s %s: %s' % (time_range, name, info))
 			if previous_time_range is not None:
 				if time_range.overlaps(previous_time_range):
-					print('\t\tOverlap')
+					if only_overlaps:
+						print('%s: %s %s | %s %s' % (date, previous_time_range, previous_name, time_range, name))
+					else:
+						print('\t\tOverlap')
 					# If the current's ending time is before the previous's, don't change previous_time_range in case it overlaps with several
 					# If current's ending time after, it's safe to change
 					if time_range.range()[1] >= previous_time_range.range()[1]:
 						previous_time_range = time_range
+						previous_name = name
 				else:
 					previous_time_range = time_range
+					previous_name = name
 			else:
 				previous_time_range = time_range
+				previous_name = name
